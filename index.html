@@ -137,40 +137,8 @@
         </div>
     </div>
 
-    <!-- 디버그 패널 (개발 모드) -->
-    <div class="debug-panel" id="debugPanel" style="display: none;">
-        <div class="debug-header">
-            <h4>🔧 알림 테스트</h4>
-            <button class="debug-close" onclick="document.getElementById('debugPanel').style.display='none'">&times;</button>
-        </div>
-        <div class="debug-body">
-            <button class="btn btn-primary" onclick="testNotification.showNow()" style="width: 100%; margin-bottom: 8px;">
-                즉시 알림 테스트
-            </button>
-            <button class="btn btn-primary" onclick="testNotification.showIn5Seconds()" style="width: 100%; margin-bottom: 8px;">
-                5초 후 알림
-            </button>
-            <button class="btn btn-primary" onclick="testNotification.showIn30Seconds()" style="width: 100%; margin-bottom: 8px;">
-                30초 후 알림
-            </button>
-            <button class="btn btn-secondary" onclick="testNotification.checkPermission()" style="width: 100%; margin-bottom: 8px;">
-                권한 상태 확인
-            </button>
-            <button class="btn btn-secondary" onclick="testNotification.listScheduled()" style="width: 100%; margin-bottom: 8px;">
-                스케줄된 알림 보기
-            </button>
-            <div class="debug-info" id="debugInfo" style="margin-top: 12px; padding: 8px; background: #f3f4f6; border-radius: 4px; font-size: 12px;">
-                콘솔(F12)에서 결과를 확인하세요
-            </div>
-        </div>
-    </div>
-
-    <!-- 디버그 패널 열기 버튼 -->
-    <button class="debug-toggle" onclick="document.getElementById('debugPanel').style.display='block'" title="알림 테스트 패널">
-        🔧
-    </button>
-
     <!-- 자바스크립트 파일들 -->
+    <script src="js/utils/toast.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/notification.js"></script>
     <script src="js/schedule.js"></script>

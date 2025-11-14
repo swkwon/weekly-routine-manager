@@ -118,20 +118,31 @@ class ScheduleManager {
         document.querySelectorAll('.day-tab').forEach(tab => {
             tab.classList.remove('active');
         });
-        document.querySelector(`[data-day="${day}"]`).classList.add('active');
+        
+        const dayTab = document.querySelector(`[data-day="${day}"]`);
+        if (dayTab) {
+            dayTab.classList.add('active');
+        }
 
         // 제목 업데이트
-        document.getElementById('currentDayTitle').textContent = `${this.dayNames[day]} 스케줄`;
+        const dayTitle = document.getElementById('currentDayTitle');
+        if (dayTitle) {
+            dayTitle.textContent = `${this.dayNames[day]} 스케줄`;
+        }
 
         // 스케줄 렌더링
         this.renderSchedules();
     }
 
-    // 스케줄 렌더링
+    // 스케줄 렌더링 (차별화 렌더링)
     renderSchedules() {
         const schedules = storage.getSchedules(this.currentDay);
         const scheduleList = document.getElementById('scheduleList');
         const emptyState = document.getElementById('emptyState');
+
+        if (!scheduleList || !emptyState) {
+            return; // DOM 요소가 아직 로드되지 않음
+        }
 
         if (schedules.length === 0) {
             scheduleList.innerHTML = '';
@@ -141,33 +152,120 @@ class ScheduleManager {
 
         emptyState.style.display = 'none';
         
-        scheduleList.innerHTML = schedules.map(schedule => `
-            <div class="schedule-item ${schedule.completed ? 'completed' : ''}" data-schedule-id="${schedule.id}">
-                <div class="schedule-info">
-                    <div class="schedule-time">${this.formatTime(schedule.time)}</div>
-                    <div class="schedule-content">
-                        <div class="schedule-title">${this.escapeHtml(schedule.title)}</div>
-                        ${schedule.description ? `<div class="schedule-description">${this.escapeHtml(schedule.description)}</div>` : ''}
-                    </div>
-                </div>
-                <div class="schedule-actions">
-                    <button class="btn btn-success btn-icon" title="${schedule.completed ? '완료 취소' : '완료'}">
-                        ${schedule.completed ? '↩️' : '✅'}
-                    </button>
-                    <button class="btn btn-primary btn-icon" title="수정">
-                        ✏️
-                    </button>
-                    <button class="btn btn-danger btn-icon" title="삭제">
-                        🗑️
-                    </button>
+        // 기존 DOM 요소들의 ID 맵 생성
+        const existingItems = new Map();
+        scheduleList.querySelectorAll('.schedule-item').forEach(item => {
+            existingItems.set(item.dataset.scheduleId, item);
+        });
+        
+        // 새로운 스케줄 ID 세트
+        const newScheduleIds = new Set(schedules.map(s => s.id));
+        
+        // 삭제된 항목 제거
+        existingItems.forEach((item, id) => {
+            if (!newScheduleIds.has(id)) {
+                item.remove();
+            }
+        });
+        
+        // 스케줄 순서대로 업데이트 또는 추가
+        schedules.forEach((schedule, index) => {
+            const existingItem = existingItems.get(schedule.id);
+            
+            if (existingItem) {
+                // 기존 항목 업데이트
+                this.updateScheduleItem(existingItem, schedule);
+                
+                // 순서 조정 (필요시)
+                const currentIndex = Array.from(scheduleList.children).indexOf(existingItem);
+                if (currentIndex !== index) {
+                    if (index === 0) {
+                        scheduleList.insertBefore(existingItem, scheduleList.firstChild);
+                    } else {
+                        scheduleList.insertBefore(existingItem, scheduleList.children[index]);
+                    }
+                }
+            } else {
+                // 새 항목 추가
+                const newItem = this.createScheduleItem(schedule);
+                if (index < scheduleList.children.length) {
+                    scheduleList.insertBefore(newItem, scheduleList.children[index]);
+                } else {
+                    scheduleList.appendChild(newItem);
+                }
+                // 애니메이션
+                newItem.style.animation = 'fadeIn 0.3s ease both';
+            }
+        });
+    }
+    
+    // 스케줄 아이템 생성
+    createScheduleItem(schedule) {
+        const div = document.createElement('div');
+        div.className = `schedule-item ${schedule.completed ? 'completed' : ''}`;
+        div.dataset.scheduleId = schedule.id;
+        
+        div.innerHTML = `
+            <div class="schedule-info">
+                <div class="schedule-time">${this.formatTime(schedule.time)}</div>
+                <div class="schedule-content">
+                    <div class="schedule-title">${this.escapeHtml(schedule.title)}</div>
+                    ${schedule.description ? `<div class="schedule-description">${this.escapeHtml(schedule.description)}</div>` : ''}
                 </div>
             </div>
-        `).join('');
-
-        // 애니메이션 효과
-        scheduleList.querySelectorAll('.schedule-item').forEach((item, index) => {
-            item.style.animation = `fadeIn 0.3s ease ${index * 0.1}s both`;
-        });
+            <div class="schedule-actions">
+                <button class="btn btn-success btn-icon" title="${schedule.completed ? '완료 취소' : '완료'}">
+                    ${schedule.completed ? '↩️' : '✅'}
+                </button>
+                <button class="btn btn-primary btn-icon" title="수정">
+                    ✏️
+                </button>
+                <button class="btn btn-danger btn-icon" title="삭제">
+                    🗑️
+                </button>
+            </div>
+        `;
+        
+        return div;
+    }
+    
+    // 기존 스케줄 아이템 업데이트
+    updateScheduleItem(item, schedule) {
+        // 완료 상태 업데이트
+        if (schedule.completed) {
+            item.classList.add('completed');
+        } else {
+            item.classList.remove('completed');
+        }
+        
+        // 시간, 제목, 설명 업데이트
+        const timeEl = item.querySelector('.schedule-time');
+        const titleEl = item.querySelector('.schedule-title');
+        const descEl = item.querySelector('.schedule-description');
+        const contentEl = item.querySelector('.schedule-content');
+        
+        if (timeEl) timeEl.textContent = this.formatTime(schedule.time);
+        if (titleEl) titleEl.textContent = this.escapeHtml(schedule.title);
+        
+        if (schedule.description) {
+            if (descEl) {
+                descEl.textContent = this.escapeHtml(schedule.description);
+            } else {
+                const newDescEl = document.createElement('div');
+                newDescEl.className = 'schedule-description';
+                newDescEl.textContent = this.escapeHtml(schedule.description);
+                contentEl.appendChild(newDescEl);
+            }
+        } else if (descEl) {
+            descEl.remove();
+        }
+        
+        // 완료 버튼 업데이트
+        const successBtn = item.querySelector('.btn-success');
+        if (successBtn) {
+            successBtn.textContent = schedule.completed ? '↩️' : '✅';
+            successBtn.title = schedule.completed ? '완료 취소' : '완료';
+        }
     }
 
     // 스케줄 모달 열기
@@ -353,49 +451,23 @@ class ScheduleManager {
             .replace(/'/g, "&#039;");
     }
 
-    // 토스트 메시지 표시
+    // 토스트 메시지 표시 (전역 유틸리티 사용)
     showToast(message, type = 'info') {
-        // 기존 토스트 제거
-        const existingToast = document.querySelector('.toast');
-        if (existingToast) {
-            existingToast.remove();
+        if (window.showToast) {
+            window.showToast(message, type);
         }
-
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-            <span>${message}</span>
-        `;
-
-        // 토스트 스타일 추가 (CSS에 없으므로 인라인으로)
-        Object.assign(toast.style, {
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            background: type === 'success' ? '#10B981' : type === 'error' ? '#EF4444' : '#3B82F6',
-            color: 'white',
-            padding: '12px 16px',
-            borderRadius: '8px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            zIndex: '1001',
-            animation: 'fadeIn 0.3s ease',
-            maxWidth: '300px',
-            fontSize: '14px'
-        });
-
-        document.body.appendChild(toast);
-
-        // 3초 후 자동 제거
-        setTimeout(() => {
-            toast.style.animation = 'fadeOut 0.3s ease forwards';
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
     }
 }
 
-// 전역 schedule 매니저 인스턴스
-const scheduleManager = new ScheduleManager();
+// 전역 schedule 매니저 인스턴스 (DOMContentLoaded 후 초기화)
+let scheduleManager = null;
+
+// DOM이 로드된 후 초기화
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        scheduleManager = new ScheduleManager();
+    });
+} else {
+    // 이미 로드된 경우
+    scheduleManager = new ScheduleManager();
+}

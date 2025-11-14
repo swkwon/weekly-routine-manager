@@ -2,6 +2,9 @@
 class StorageManager {
     constructor() {
         this.STORAGE_KEY = 'weekly-routine-data';
+        this.cache = null; // 인메모리 캐시
+        this.saveTimer = null; // 디바운스 타이머
+        this.DEBOUNCE_DELAY = 300; // 300ms 디바운스
         this.init();
     }
 
@@ -38,9 +41,16 @@ class StorageManager {
 
     // 전체 데이터 가져오기
     getData() {
+        // 캐시가 있으면 캐시 반환
+        if (this.cache !== null) {
+            return this.cache;
+        }
+        
         try {
             const data = localStorage.getItem(this.STORAGE_KEY);
-            return data ? JSON.parse(data) : null;
+            const parsedData = data ? JSON.parse(data) : null;
+            this.cache = parsedData; // 캐시 저장
+            return parsedData;
         } catch (error) {
             console.error('데이터 로드 에러:', error);
             return null;
@@ -49,13 +59,46 @@ class StorageManager {
 
     // 전체 데이터 저장하기
     setData(data) {
-        try {
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
-            return true;
-        } catch (error) {
-            console.error('데이터 저장 에러:', error);
-            return false;
+        this.cache = data; // 캐시 업데이트
+        
+        // 디바운스된 저장
+        if (this.saveTimer) {
+            clearTimeout(this.saveTimer);
         }
+        
+        this.saveTimer = setTimeout(() => {
+            try {
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+            } catch (error) {
+                console.error('데이터 저장 에러:', error);
+            }
+        }, this.DEBOUNCE_DELAY);
+        
+        return true;
+    }
+    
+    // 즉시 저장 (중요한 작업용)
+    saveImmediately() {
+        if (this.saveTimer) {
+            clearTimeout(this.saveTimer);
+            this.saveTimer = null;
+        }
+        
+        if (this.cache !== null) {
+            try {
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.cache));
+                return true;
+            } catch (error) {
+                console.error('데이터 저장 에러:', error);
+                return false;
+            }
+        }
+        return false;
+    }
+    
+    // 캐시 무효화
+    invalidateCache() {
+        this.cache = null;
     }
 
     // 특정 요일의 스케줄 가져오기
@@ -233,12 +276,14 @@ class StorageManager {
 
     // 데이터 초기화
     clearAllData() {
+        this.invalidateCache();
         localStorage.removeItem(this.STORAGE_KEY);
         this.init();
     }
 
     // 데이터 내보내기 (JSON)
     exportData() {
+        this.saveImmediately(); // 내보내기 전 즉시 저장
         const data = this.getData();
         const blob = new Blob([JSON.stringify(data, null, 2)], {
             type: 'application/json'
@@ -262,7 +307,9 @@ class StorageManager {
                 try {
                     const data = JSON.parse(e.target.result);
                     if (this.validateData(data)) {
+                        this.invalidateCache(); // 캐시 무효화
                         this.setData(data);
+                        this.saveImmediately(); // 즉시 저장
                         resolve(true);
                     } else {
                         reject(new Error('유효하지 않은 데이터 형식입니다.'));

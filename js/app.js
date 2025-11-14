@@ -390,10 +390,10 @@ class App {
         }, 8000);
     }
 
-    // 토스트 메시지 (다른 클래스들과 동일한 인터페이스)
+    // 토스트 메시지 (전역 유틸리티 사용)
     showToast(message, type = 'info') {
-        if (scheduleManager) {
-            scheduleManager.showToast(message, type);
+        if (window.showToast) {
+            window.showToast(message, type);
         }
     }
 

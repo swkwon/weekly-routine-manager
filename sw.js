@@ -9,6 +9,7 @@ const STATIC_FILES = [
     './index.html',
     './css/style.css',
     './css/mobile.css',
+    './js/utils/toast.js',
     './js/app.js',
     './js/storage.js',
     './js/schedule.js',
@@ -242,110 +243,6 @@ async function networkFirstWithFallback(request) {
     }
 }
 
-// 백그라운드 동기화 (실험적 기능)
-self.addEventListener('sync', (event) => {
-    console.log('[SW] 백그라운드 동기화:', event.tag);
-    
-    if (event.tag === 'background-sync-schedules') {
-        event.waitUntil(syncSchedules());
-    }
-});
-
-async function syncSchedules() {
-    try {
-        console.log('[SW] 스케줄 동기화 실행');
-        // 여기서 서버와 데이터 동기화 로직 구현 가능
-        // 현재는 로컬 스토리지만 사용하므로 생략
-    } catch (error) {
-        console.error('[SW] 스케줄 동기화 실패:', error);
-    }
-}
-
-// 푸시 알림 처리 (실험적 기능)
-self.addEventListener('push', (event) => {
-    console.log('[SW] 푸시 메시지 수신:', event);
-    
-    const options = {
-        body: '스케줄 시간이 되었습니다!',
-        icon: '/assets/icon-192.png',
-        badge: '/assets/icon-72.png',
-        vibrate: [200, 100, 200],
-        data: {
-            dateOfArrival: Date.now(),
-            primaryKey: '1'
-        },
-        actions: [
-            {
-                action: 'complete',
-                title: '완료',
-                icon: '/assets/action-complete.png'
-            },
-            {
-                action: 'snooze',
-                title: '5분 후',
-                icon: '/assets/action-snooze.png'
-            }
-        ]
-    };
-
-    if (event.data) {
-        const payload = event.data.json();
-        options.body = payload.body || options.body;
-        options.data = { ...options.data, ...payload.data };
-    }
-
-    event.waitUntil(
-        self.registration.showNotification('주간 루틴 매니저', options)
-    );
-});
-
-// 알림 클릭 처리
-self.addEventListener('notificationclick', (event) => {
-    console.log('[SW] 알림 클릭:', event);
-    
-    event.notification.close();
-
-    if (event.action === 'complete') {
-        // 완료 액션 처리
-        event.waitUntil(handleCompleteAction(event.notification.data));
-    } else if (event.action === 'snooze') {
-        // 스누즈 액션 처리
-        event.waitUntil(handleSnoozeAction(event.notification.data));
-    } else {
-        // 기본 클릭: 앱 열기
-        event.waitUntil(
-            clients.matchAll({ type: 'window' }).then((clientList) => {
-                for (const client of clientList) {
-                    if (client.url === self.registration.scope && 'focus' in client) {
-                        return client.focus();
-                    }
-                }
-                if (clients.openWindow) {
-                    return clients.openWindow('/');
-                }
-            })
-        );
-    }
-});
-
-async function handleCompleteAction(data) {
-    console.log('[SW] 완료 액션 처리:', data);
-    // 스케줄 완료 처리 로직
-}
-
-async function handleSnoozeAction(data) {
-    console.log('[SW] 스누즈 액션 처리:', data);
-    // 5분 후 다시 알림 스케줄링
-    setTimeout(() => {
-        self.registration.showNotification('주간 루틴 매니저 (다시 알림)', {
-            body: '스케줄 시간입니다!',
-            icon: '/assets/icon-192.png',
-            badge: '/assets/icon-72.png',
-            data: data
-        });
-    }, 5 * 60 * 1000); // 5분
-}
-
 // 캐시 정리 (주기적으로 실행)
 self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'CLEAN_CACHE') {
@@ -367,12 +264,9 @@ async function cleanOldCache() {
                 const dateHeader = response.headers.get('date');
                 if (dateHeader && new Date(dateHeader).getTime() < oneWeekAgo) {
                     await cache.delete(request);
-                    console.log('[SW] 오래된 캐시 항목 삭제:', request.url);
                 }
             }
         }
-        
-        console.log('[SW] 캐시 정리 완료');
     } catch (error) {
         console.error('[SW] 캐시 정리 실패:', error);
     }
