@@ -152,13 +152,13 @@ class ScheduleManager {
                 </div>
                 <div class="schedule-actions">
                     <button class="btn btn-success btn-icon" title="${schedule.completed ? '완료 취소' : '완료'}">
-                        <i class="fas fa-${schedule.completed ? 'undo' : 'check'}"></i>
+                        ${schedule.completed ? '↩️' : '✅'}
                     </button>
                     <button class="btn btn-primary btn-icon" title="수정">
-                        <i class="fas fa-edit"></i>
+                        ✏️
                     </button>
                     <button class="btn btn-danger btn-icon" title="삭제">
-                        <i class="fas fa-trash"></i>
+                        🗑️
                     </button>
                 </div>
             </div>
