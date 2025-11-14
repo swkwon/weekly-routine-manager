@@ -97,22 +97,35 @@ class NotificationManager {
         try {
             console.log('🔔 브라우저 알림 권한 요청 시작...');
             console.log('🔔 Notification.requestPermission 함수:', typeof Notification.requestPermission);
+            console.log('🔔 브라우저:', navigator.userAgent);
             
             // 브라우저 권한 팝업 표시
             let permission;
             
+            // 타임아웃 설정 (30초)
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('권한 요청 타임아웃 (30초)')), 30000);
+            });
+            
             // 구형 브라우저 호환성을 위한 처리
+            let permissionPromise;
             if (Notification.requestPermission.length === 0) {
                 // Promise 기반 (최신 브라우저)
                 console.log('🔔 Promise 기반 requestPermission 사용');
-                permission = await Notification.requestPermission();
+                permissionPromise = Notification.requestPermission();
             } else {
                 // Callback 기반 (구형 브라우저)
                 console.log('🔔 Callback 기반 requestPermission 사용');
-                permission = await new Promise((resolve) => {
+                permissionPromise = new Promise((resolve) => {
                     Notification.requestPermission(resolve);
                 });
             }
+            
+            console.log('🔔 권한 요청 Promise 생성됨, 브라우저 팝업을 기다립니다...');
+            console.log('🔔 팝업이 보이지 않으면 브라우저 주소창 옆 아이콘을 확인하세요!');
+            
+            // 타임아웃과 경쟁
+            permission = await Promise.race([permissionPromise, timeoutPromise]);
             
             console.log('🔔 알림 권한 결과:', permission);
             this.permission = permission;
