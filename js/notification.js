@@ -162,7 +162,15 @@ class NotificationManager {
         } catch (error) {
             console.error('❌ 알림 권한 요청 오류:', error);
             console.error('❌ 오류 상세:', error.message, error.stack);
-            this.showToast('알림 권한 요청 중 오류가 발생했습니다: ' + error.message, 'error');
+            
+            // 타임아웃이거나 권한 팝업이 차단된 경우 - 수동 설정 안내
+            if (error.message.includes('타임아웃') || error.message.includes('timeout')) {
+                console.log('⚠️ 브라우저가 권한 팝업을 차단했습니다. 수동 설정 안내 표시...');
+                this.showPermissionDeniedModal();
+                this.showToast('브라우저 설정에서 알림을 직접 허용해주세요.', 'warning');
+            } else {
+                this.showToast('알림 권한 요청 중 오류가 발생했습니다: ' + error.message, 'error');
+            }
             return false;
         }
     }
@@ -268,13 +276,22 @@ class NotificationManager {
         modal.innerHTML = `
             <div class="notification-content" style="max-width: 500px;">
                 <i class="fas fa-exclamation-circle" style="color: #F59E0B;"></i>
-                <h3>알림이 차단되어 있습니다</h3>
-                <p style="margin-bottom: 20px; color: #6B7280;">
-                    알림을 받으려면 브라우저 설정에서 권한을 허용해야 합니다.
+                <h3>알림 권한 설정이 필요합니다</h3>
+                <p style="margin-bottom: 15px; color: #6B7280;">
+                    브라우저가 알림 팝업을 차단했거나 권한이 거부되었습니다.
                 </p>
+                <div style="background: #DBEAFE; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <h4 style="margin: 0 0 10px 0; color: #1E40AF; font-size: 14px;">
+                        💡 빠른 해결 방법
+                    </h4>
+                    <p style="margin: 0; padding-left: 15px; color: #374151; font-size: 13px;">
+                        <strong>주소창 왼쪽 🔒 자물쇠</strong>를 클릭하고<br>
+                        <strong>"알림" → "허용"</strong>으로 변경 후 새로고침
+                    </p>
+                </div>
                 <div style="background: #FEF3C7; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                     <h4 style="margin: 0 0 10px 0; color: #92400E; font-size: 14px;">
-                        📝 설정 방법
+                        📝 상세 설정 방법
                     </h4>
                     ${instructions}
                 </div>
