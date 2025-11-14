@@ -195,22 +195,27 @@ class NotificationManager {
     // 알림 버튼 상태 업데이트
     updateNotificationButton() {
         const button = document.getElementById('notificationToggle');
-        const icon = button.querySelector('i');
+        if (!button) {
+            console.warn('⚠️ notificationToggle 버튼을 찾을 수 없습니다.');
+            return;
+        }
+        
         const span = button.querySelector('span');
+        if (!span) {
+            console.warn('⚠️ 알림 버튼의 span 요소를 찾을 수 없습니다.');
+            return;
+        }
 
         switch (this.permission) {
             case 'granted':
-                icon.className = 'fas fa-bell';
                 span.textContent = '알림 ON';
                 button.style.background = 'var(--secondary-color)';
                 break;
             case 'denied':
-                icon.className = 'fas fa-bell-slash';
                 span.textContent = '알림 거부됨';
                 button.style.background = 'var(--danger-color)';
                 break;
             default:
-                icon.className = 'fas fa-bell';
                 span.textContent = '알림 설정';
                 button.style.background = 'var(--primary-color)';
         }
