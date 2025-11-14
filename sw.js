@@ -13,9 +13,7 @@ const STATIC_FILES = [
     './js/storage.js',
     './js/schedule.js',
     './js/notification.js',
-    './manifest.json',
-    // 외부 리소스 (CDN)
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
+    './manifest.json'
 ];
 
 // 동적으로 캐시할 리소스 패턴

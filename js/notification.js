@@ -48,7 +48,6 @@ class NotificationManager {
                                 this.showNotification({
                                     title: '✅ 알림 설정 완료',
                                     body: '이제 스케줄 시간에 알림을 받을 수 있습니다!',
-                                    icon: './assets/icon-192.png',
                                     tag: 'permission-granted'
                                 });
                             }, 500);
@@ -151,7 +150,6 @@ class NotificationManager {
                     this.showNotification({
                         title: '✅ 알림 설정 완료',
                         body: '이제 스케줄 시간에 알림을 받을 수 있습니다!',
-                        icon: '/assets/icon-192.png',
                         tag: 'permission-granted'
                     });
                 }, 500);
@@ -368,7 +366,6 @@ class NotificationManager {
             id: schedule.id,
             title: `🔔 ${schedule.title}`,
             body: `${this.getDayName(day)} ${this.formatTime(schedule.time)}에 예정된 활동입니다.`,
-            icon: '/assets/icon-192.png', // PWA 아이콘 사용
             tag: schedule.id,
             data: {
                 scheduleId: schedule.id,
@@ -416,9 +413,7 @@ class NotificationManager {
         try {
             const notification = new Notification(data.title, {
                 body: data.body,
-                icon: data.icon,
                 tag: data.tag,
-                badge: data.icon,
                 requireInteraction: true, // 사용자가 직접 닫을 때까지 유지
                 data: data.data
             });
@@ -764,7 +759,6 @@ window.testNotification = {
         notificationManager.showNotification({
             title: title,
             body: body,
-            icon: '/assets/icon-192.png',
             tag: 'test-notification',
             data: {}
         });
