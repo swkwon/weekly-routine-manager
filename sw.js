@@ -5,15 +5,15 @@ const DYNAMIC_CACHE_NAME = 'weekly-routine-dynamic-v1.0.0';
 
 // 캐시할 정적 리소스들
 const STATIC_FILES = [
-    '/',
-    '/index.html',
-    '/css/style.css',
-    '/css/mobile.css',
-    '/js/app.js',
-    '/js/storage.js',
-    '/js/schedule.js',
-    '/js/notification.js',
-    '/manifest.json',
+    './',
+    './index.html',
+    './css/style.css',
+    './css/mobile.css',
+    './js/app.js',
+    './js/storage.js',
+    './js/schedule.js',
+    './js/notification.js',
+    './manifest.json',
     // 외부 리소스 (CDN)
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];

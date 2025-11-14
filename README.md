@@ -194,7 +194,7 @@ weekly-routine-manager/
 문제가 발생하거나 궁금한 점이 있으시면:
 
 - 이슈 생성: GitHub Issues 탭 활용
-- 이메일: [your-email@example.com]
+- 이메일: [swkwon04@gmail.com]
 - 문서: 프로젝트 Wiki 참고
 
 ---
