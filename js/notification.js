@@ -16,14 +16,55 @@ class NotificationManager {
 
     // 이벤트 바인딩
     bindEvents() {
-        // 알림 설정 버튼
+        // 알림 설정 버튼 - 모달 없이 직접 권한 요청
         const notificationToggle = document.getElementById('notificationToggle');
         if (notificationToggle) {
-            notificationToggle.addEventListener('click', () => {
+            notificationToggle.addEventListener('click', (e) => {
                 console.log('🔔 알림 설정 버튼 클릭, 현재 권한:', this.permission);
+                e.preventDefault();
+                
                 if (this.permission === 'default') {
-                    // 권한이 아직 설정되지 않았으면 모달 표시
-                    this.showNotificationModal(true);
+                    // 모달 없이 즉시 권한 요청 (사용자 제스처 유지)
+                    console.log('🔔 즉시 브라우저 권한 요청...');
+                    
+                    if (!('Notification' in window)) {
+                        this.showToast('이 브라우저는 알림을 지원하지 않습니다.', 'error');
+                        return;
+                    }
+                    
+                    // 동기적으로 즉시 호출 (사용자 제스처 컨텍스트 유지)
+                    Notification.requestPermission().then(permission => {
+                        console.log('🔔 알림 권한 결과:', permission);
+                        this.permission = permission;
+                        this.updateNotificationButton();
+                        
+                        if (permission === 'granted') {
+                            console.log('✅ 알림 허용됨!');
+                            this.showToast('알림이 허용되었습니다!', 'success');
+                            storage.updateSettings({ notificationEnabled: true });
+                            
+                            // 테스트 알림 표시
+                            setTimeout(() => {
+                                this.showNotification({
+                                    title: '✅ 알림 설정 완료',
+                                    body: '이제 스케줄 시간에 알림을 받을 수 있습니다!',
+                                    icon: './assets/icon-192.png',
+                                    tag: 'permission-granted'
+                                });
+                            }, 500);
+                        } else if (permission === 'denied') {
+                            console.log('❌ 알림 거부됨');
+                            this.showToast('알림이 거부되었습니다.', 'warning');
+                            storage.updateSettings({ notificationEnabled: false });
+                            this.showPermissionDeniedModal();
+                        } else {
+                            console.log('⚠️ 알림 권한 설정되지 않음');
+                            this.showToast('알림 권한이 설정되지 않았습니다.', 'warning');
+                        }
+                    }).catch(error => {
+                        console.error('❌ 권한 요청 에러:', error);
+                        this.showPermissionDeniedModal();
+                    });
                 } else if (this.permission === 'granted') {
                     // 이미 허용된 경우
                     this.showToast('알림이 이미 허용되어 있습니다.', 'success');
@@ -32,38 +73,6 @@ class NotificationManager {
                     this.showPermissionDeniedModal();
                 }
             });
-        }
-
-        // 알림 권한 모달 - 허용 버튼
-        const allowBtn = document.getElementById('allowNotification');
-        if (allowBtn) {
-            allowBtn.addEventListener('click', async (e) => {
-                console.log('✅ 허용 버튼 클릭됨');
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // 모달을 먼저 닫지 말고 바로 권한 요청
-                console.log('🔔 즉시 브라우저 권한 요청 시작...');
-                await this.requestPermissionFromBrowser();
-                
-                // 권한 요청 후 모달 닫기
-                this.hideNotificationModal();
-            });
-        } else {
-            console.warn('⚠️ allowNotification 버튼을 찾을 수 없습니다');
-        }
-
-        // 알림 권한 모달 - 나중에 버튼
-        const denyBtn = document.getElementById('denyNotification');
-        if (denyBtn) {
-            denyBtn.addEventListener('click', (e) => {
-                console.log('❌ 나중에 버튼 클릭됨');
-                e.preventDefault();
-                e.stopPropagation();
-                this.hideNotificationModal();
-            });
-        } else {
-            console.warn('⚠️ denyNotification 버튼을 찾을 수 없습니다');
         }
     }
 
