@@ -37,15 +37,17 @@ class NotificationManager {
         // 알림 권한 모달 - 허용 버튼
         const allowBtn = document.getElementById('allowNotification');
         if (allowBtn) {
-            allowBtn.addEventListener('click', (e) => {
+            allowBtn.addEventListener('click', async (e) => {
                 console.log('✅ 허용 버튼 클릭됨');
                 e.preventDefault();
                 e.stopPropagation();
+                
+                // 모달을 먼저 닫지 말고 바로 권한 요청
+                console.log('🔔 즉시 브라우저 권한 요청 시작...');
+                await this.requestPermissionFromBrowser();
+                
+                // 권한 요청 후 모달 닫기
                 this.hideNotificationModal();
-                // 약간의 지연 후 권한 요청 (모달이 완전히 닫힌 후)
-                setTimeout(() => {
-                    this.requestPermissionFromBrowser();
-                }, 100);
             });
         } else {
             console.warn('⚠️ allowNotification 버튼을 찾을 수 없습니다');
@@ -97,7 +99,20 @@ class NotificationManager {
             console.log('🔔 Notification.requestPermission 함수:', typeof Notification.requestPermission);
             
             // 브라우저 권한 팝업 표시
-            const permission = await Notification.requestPermission();
+            let permission;
+            
+            // 구형 브라우저 호환성을 위한 처리
+            if (Notification.requestPermission.length === 0) {
+                // Promise 기반 (최신 브라우저)
+                console.log('🔔 Promise 기반 requestPermission 사용');
+                permission = await Notification.requestPermission();
+            } else {
+                // Callback 기반 (구형 브라우저)
+                console.log('🔔 Callback 기반 requestPermission 사용');
+                permission = await new Promise((resolve) => {
+                    Notification.requestPermission(resolve);
+                });
+            }
             
             console.log('🔔 알림 권한 결과:', permission);
             this.permission = permission;
