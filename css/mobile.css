@@ -1,0 +1,309 @@
+/* 모바일 반응형 스타일 */
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 0 var(--spacing-sm);
+    }
+
+    /* 헤더 */
+    .header .container {
+        padding: var(--spacing-md) var(--spacing-sm);
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: flex-start;
+    }
+
+    .app-title {
+        font-size: 1.25rem;
+        align-self: center;
+    }
+
+    .notification-toggle {
+        align-self: center;
+        font-size: 0.8rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    /* 요일 탭 */
+    .day-tabs {
+        margin-bottom: var(--spacing-lg);
+        padding: 4px;
+    }
+
+    .day-tab {
+        min-width: 48px;
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 0.875rem;
+    }
+
+    /* 스케줄 컨테이너 */
+    .schedule-container {
+        padding: var(--spacing-lg);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .schedule-header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: stretch;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .current-day-title {
+        text-align: center;
+        font-size: 1.125rem;
+    }
+
+    .add-schedule-btn {
+        align-self: center;
+        padding: var(--spacing-md) var(--spacing-lg);
+        font-size: 0.875rem;
+    }
+
+    /* 스케줄 아이템 */
+    .schedule-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-md);
+        padding: var(--spacing-md);
+    }
+
+    .schedule-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .schedule-time {
+        min-width: auto;
+        font-size: 0.8rem;
+        background: var(--primary-color);
+        color: white;
+        padding: var(--spacing-xs) var(--spacing-sm);
+        border-radius: var(--border-radius-sm);
+        align-self: flex-start;
+    }
+
+    .schedule-title {
+        font-size: 0.95rem;
+    }
+
+    .schedule-description {
+        font-size: 0.8rem;
+    }
+
+    .schedule-actions {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        font-size: 0.8rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    /* 통계 섹션 */
+    .stats-section {
+        padding: var(--spacing-lg);
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-sm);
+    }
+
+    .stat-item {
+        padding: var(--spacing-md);
+    }
+
+    .stat-value {
+        font-size: 1.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+    }
+
+    /* 모달 */
+    .modal {
+        width: 95%;
+        margin: var(--spacing-sm);
+    }
+
+    .modal-header {
+        padding: var(--spacing-md) var(--spacing-lg);
+    }
+
+    .modal-header h3 {
+        font-size: 1.1rem;
+    }
+
+    .modal-body {
+        padding: var(--spacing-lg);
+    }
+
+    .form-group {
+        margin-bottom: var(--spacing-md);
+    }
+
+    .form-group input,
+    .form-group textarea {
+        padding: var(--spacing-sm);
+        font-size: 0.9rem;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        gap: var(--spacing-sm);
+    }
+
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+        padding: var(--spacing-md);
+    }
+
+    /* 알림 모달 */
+    .notification-content {
+        padding: var(--spacing-xl);
+        margin: var(--spacing-md);
+        max-width: 320px;
+    }
+
+    .notification-content i {
+        font-size: 2.5rem;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .notification-content h3 {
+        font-size: 1.1rem;
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .notification-content p {
+        font-size: 0.9rem;
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .notification-actions {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .notification-actions .btn {
+        width: 100%;
+        justify-content: center;
+        padding: var(--spacing-md);
+    }
+
+    /* 빈 상태 */
+    .empty-state {
+        padding: var(--spacing-xl);
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .empty-state p {
+        font-size: 0.9rem;
+    }
+
+    /* 메인 컨테이너 */
+    .main-container {
+        padding: var(--spacing-lg) 0;
+    }
+}
+
+/* 작은 모바일 화면 (iPhone SE 등) */
+@media screen and (max-width: 375px) {
+    .day-tabs {
+        gap: 2px;
+        padding: 2px;
+    }
+
+    .day-tab {
+        min-width: 42px;
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: 0.8rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .schedule-actions {
+        flex-direction: column;
+    }
+
+    .schedule-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* 태블릿 세로 모드 */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .schedule-item {
+        padding: var(--spacing-lg) var(--spacing-xl);
+    }
+
+    .modal {
+        width: 80%;
+        max-width: 600px;
+    }
+}
+
+/* 다크모드 지원 (시스템 설정 기준) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #0F172A;
+        --surface-color: #1E293B;
+        --text-primary: #F1F5F9;
+        --text-secondary: #94A3B8;
+        --border-color: #334155;
+    }
+
+    .schedule-item.completed {
+        background: #064E3B;
+        border-color: var(--secondary-color);
+    }
+
+    .schedule-time {
+        background: var(--primary-color) !important;
+    }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+    :root {
+        --border-color: #000000;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn {
+        border: 2px solid currentColor;
+    }
+
+    .schedule-item {
+        border-width: 2px;
+    }
+}

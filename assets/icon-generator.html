@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주간 루틴 매니저 - 아이콘 생성기</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #4F46E5;
+            margin-bottom: 10px;
+        }
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .preview-item {
+            text-align: center;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        .preview-item canvas {
+            display: block;
+            margin: 0 auto 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .preview-item .size-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .preview-item .filename {
+            font-size: 12px;
+            color: #666;
+            font-family: monospace;
+        }
+        .download-btn {
+            background: #4F46E5;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .download-btn:hover {
+            background: #3730A3;
+        }
+        .download-all-btn {
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .download-all-btn:hover {
+            background: #059669;
+        }
+        .instructions {
+            background: #FEF3C7;
+            border: 1px solid #F59E0B;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .instructions h3 {
+            color: #92400E;
+            margin-top: 0;
+        }
+        .instructions ol {
+            color: #78350F;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📅 주간 루틴 매니저 - PWA 아이콘 생성기</h1>
+        <p class="description">아래 버튼을 클릭하여 각 사이즈별 아이콘을 다운로드하세요.</p>
+        
+        <button class="download-all-btn" onclick="downloadAll()">📦 모든 아이콘 다운로드</button>
+        
+        <div class="preview-grid" id="previewGrid"></div>
+        
+        <div class="instructions">
+            <h3>📝 사용 방법</h3>
+            <ol>
+                <li>"모든 아이콘 다운로드" 버튼을 클릭하거나 개별 아이콘을 다운로드하세요.</li>
+                <li>다운로드한 파일들을 <code>assets</code> 폴더에 저장하세요.</li>
+                <li>파일명은 자동으로 <code>icon-72.png</code>, <code>icon-192.png</code> 등으로 생성됩니다.</li>
+                <li>모든 아이콘이 준비되면 앱을 테스트하세요!</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        
+        function createIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // 배경 그라디언트
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#4F46E5');
+            gradient.addColorStop(1, '#6366F1');
+            ctx.fillStyle = gradient;
+            
+            // 둥근 사각형 배경
+            const radius = size * 0.15;
+            ctx.beginPath();
+            ctx.moveTo(radius, 0);
+            ctx.lineTo(size - radius, 0);
+            ctx.quadraticCurveTo(size, 0, size, radius);
+            ctx.lineTo(size, size - radius);
+            ctx.quadraticCurveTo(size, size, size - radius, size);
+            ctx.lineTo(radius, size);
+            ctx.quadraticCurveTo(0, size, 0, size - radius);
+            ctx.lineTo(0, radius);
+            ctx.quadraticCurveTo(0, 0, radius, 0);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 달력 아이콘 그리기
+            ctx.fillStyle = 'white';
+            
+            // 달력 상단 바
+            const calendarWidth = size * 0.6;
+            const calendarHeight = size * 0.6;
+            const calendarX = (size - calendarWidth) / 2;
+            const calendarY = (size - calendarHeight) / 2;
+            const headerHeight = calendarHeight * 0.2;
+            
+            // 헤더
+            ctx.fillRect(calendarX, calendarY, calendarWidth, headerHeight);
+            
+            // 메인 달력 몸체 (흰색 테두리)
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = size * 0.04;
+            ctx.strokeRect(calendarX, calendarY + headerHeight, calendarWidth, calendarHeight - headerHeight);
+            
+            // 달력 날짜 점들
+            const dotSize = size * 0.04;
+            const spacing = calendarWidth / 4;
+            const startX = calendarX + spacing / 2;
+            const startY = calendarY + headerHeight + spacing / 2;
+            
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 3; col++) {
+                    ctx.beginPath();
+                    ctx.arc(
+                        startX + col * spacing,
+                        startY + row * spacing,
+                        dotSize,
+                        0,
+                        Math.PI * 2
+                    );
+                    ctx.fill();
+                }
+            }
+            
+            // 체크마크 (완료 표시)
+            if (size >= 192) {
+                const checkSize = size * 0.15;
+                const checkX = calendarX + calendarWidth - checkSize;
+                const checkY = calendarY + calendarHeight - checkSize;
+                
+                ctx.fillStyle = '#10B981';
+                ctx.beginPath();
+                ctx.arc(checkX, checkY, checkSize * 0.8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = size * 0.02;
+                ctx.beginPath();
+                ctx.moveTo(checkX - checkSize * 0.3, checkY);
+                ctx.lineTo(checkX - checkSize * 0.1, checkY + checkSize * 0.3);
+                ctx.lineTo(checkX + checkSize * 0.4, checkY - checkSize * 0.3);
+                ctx.stroke();
+            }
+            
+            return canvas;
+        }
+        
+        function downloadCanvas(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        function downloadAll() {
+            sizes.forEach((size, index) => {
+                setTimeout(() => {
+                    const canvas = createIcon(size);
+                    downloadCanvas(canvas, `icon-${size}.png`);
+                }, index * 200); // 각 다운로드 사이에 200ms 지연
+            });
+        }
+        
+        function initializePreviews() {
+            const grid = document.getElementById('previewGrid');
+            
+            sizes.forEach(size => {
+                const item = document.createElement('div');
+                item.className = 'preview-item';
+                
+                const canvas = createIcon(size);
+                const displaySize = Math.min(size, 150);
+                canvas.style.width = displaySize + 'px';
+                canvas.style.height = displaySize + 'px';
+                
+                const sizeLabel = document.createElement('div');
+                sizeLabel.className = 'size-label';
+                sizeLabel.textContent = `${size}x${size}`;
+                
+                const filename = document.createElement('div');
+                filename.className = 'filename';
+                filename.textContent = `icon-${size}.png`;
+                
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'download-btn';
+                downloadBtn.textContent = '다운로드';
+                downloadBtn.onclick = () => {
+                    const fullCanvas = createIcon(size);
+                    downloadCanvas(fullCanvas, `icon-${size}.png`);
+                };
+                
+                item.appendChild(sizeLabel);
+                item.appendChild(canvas);
+                item.appendChild(filename);
+                item.appendChild(downloadBtn);
+                
+                grid.appendChild(item);
+            });
+        }
+        
+        // 페이지 로드 시 미리보기 생성
+        initializePreviews();
+    </script>
+</body>
+</html>
