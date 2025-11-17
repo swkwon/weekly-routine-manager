@@ -79,14 +79,6 @@
                     <p>스케줄을 추가해보세요!</p>
                 </div>
             </div>
-
-            <!-- 통계 섹션 -->
-            <div class="stats-section">
-                <h3>이번 주 실행 현황</h3>
-                <div class="stats-grid" id="statsGrid">
-                    <!-- 통계 정보가 여기에 표시됩니다 -->
-                </div>
-            </div>
         </div>
     </main>
 
@@ -112,6 +104,42 @@
                     <div class="form-group">
                         <label for="scheduleDescription">설명 (선택사항)</label>
                         <textarea id="scheduleDescription" placeholder="상세 설명이나 메모..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>적용할 요일</label>
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <button type="button" class="btn btn-secondary" id="selectAllDays" style="font-size: 0.75rem; padding: 4px 8px;">모두 체크</button>
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <label class="checkbox-label" style="flex: 0 0 auto; margin-bottom: 0.5rem !important;">
+                                <input type="checkbox" class="day-checkbox" value="monday">
+                                <span>월</span>
+                            </label>
+                            <label class="checkbox-label" style="flex: 0 0 auto; margin-bottom: 0.5rem !important;">
+                                <input type="checkbox" class="day-checkbox" value="tuesday">
+                                <span>화</span>
+                            </label>
+                            <label class="checkbox-label" style="flex: 0 0 auto; margin-bottom: 0.5rem !important;">
+                                <input type="checkbox" class="day-checkbox" value="wednesday">
+                                <span>수</span>
+                            </label>
+                            <label class="checkbox-label" style="flex: 0 0 auto; margin-bottom: 0.5rem !important;">
+                                <input type="checkbox" class="day-checkbox" value="thursday">
+                                <span>목</span>
+                            </label>
+                            <label class="checkbox-label" style="flex: 0 0 auto; margin-bottom: 0.5rem !important;">
+                                <input type="checkbox" class="day-checkbox" value="friday">
+                                <span>금</span>
+                            </label>
+                            <label class="checkbox-label" style="flex: 0 0 auto; margin-bottom: 0.5rem !important;">
+                                <input type="checkbox" class="day-checkbox" value="saturday">
+                                <span>토</span>
+                            </label>
+                            <label class="checkbox-label" style="flex: 0 0 auto; margin-bottom: 0.5rem !important;">
+                                <input type="checkbox" class="day-checkbox" value="sunday">
+                                <span>일</span>
+                            </label>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label class="checkbox-label">
