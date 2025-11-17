@@ -500,6 +500,7 @@ body {
     font-size: 1rem;
     transition: all 0.2s ease;
     background: var(--surface-color);
+    color: var(--text-primary);
 }
 
 .form-group input:focus,
@@ -507,6 +508,15 @@ body {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* 시간 선택 도구 색상 */
+.form-group input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(var(--picker-invert, 0));
+}
+
+[data-theme="dark"] {
+    --picker-invert: 1;
 }
 
 .form-group textarea {
