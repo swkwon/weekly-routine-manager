@@ -187,12 +187,7 @@ class App {
 
     // 앱 상태 복원
     restoreAppState() {
-        // 마지막 선택된 요일 복원
-        const lastDay = localStorage.getItem('lastSelectedDay');
-        if (lastDay) {
-            scheduleManager.switchDay(lastDay);
-        }
-
+        // 마지막 선택된 요일이 있으면 복원 (이미 loadCurrentDay에서 처리됨)
         // 스케줄 알림 재설정
         this.rescheduleAllNotifications();
     }
@@ -303,11 +298,6 @@ class App {
     onAppBlur() {
         // 앱이 포커스를 잃었을 때
         console.log('앱 블러');
-        
-        // 현재 선택된 요일 저장
-        if (scheduleManager) {
-            localStorage.setItem('lastSelectedDay', scheduleManager.currentDay);
-        }
     }
 
     onOnline() {
@@ -326,11 +316,7 @@ class App {
     }
 
     onBeforeUnload(e) {
-        // 페이지 언로드 전 중요한 데이터 백업
-        if (scheduleManager) {
-            localStorage.setItem('lastSelectedDay', scheduleManager.currentDay);
-        }
-        
+        // 페이지 언로드 전 처리
         // 변경사항이 있는 경우 경고 (필요시)
         // e.preventDefault();
         // e.returnValue = '';

@@ -106,6 +106,7 @@ class ScheduleManager {
 
     // 현재 요일 로드
     loadCurrentDay() {
+        // 오늘 요일로 설정
         const today = storage.getCurrentDay();
         this.switchDay(today);
     }
