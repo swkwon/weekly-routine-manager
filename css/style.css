@@ -104,6 +104,29 @@ body {
     gap: var(--spacing-sm);
 }
 
+.language-select {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--surface-color);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.language-select:hover {
+    background: var(--background-color);
+    transform: translateY(-1px);
+}
+
+.language-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
 .theme-toggle {
     display: flex;
     align-items: center;

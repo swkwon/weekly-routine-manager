@@ -15,6 +15,7 @@ const STATIC_FILES = [
     './js/storage.js',
     './js/schedule.js',
     './js/notification.js',
+    './js/i18n.js',
     './manifest.json'
 ];
 

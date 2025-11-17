@@ -32,6 +32,13 @@
                 주간 루틴 매니저
             </h1>
             <div class="header-actions">
+                <select class="language-select" id="languageSelect">
+                    <option value="ko">한국어</option>
+                    <option value="en">English</option>
+                    <option value="ja">日本語</option>
+                    <option value="zh">中文</option>
+                    <option value="es">Español</option>
+                </select>
                 <button class="theme-toggle" id="themeToggle" title="테마 변경">
                     <span class="theme-icon">🌙</span>
                 </button>
@@ -172,6 +179,7 @@
 
     <!-- 자바스크립트 파일들 -->
     <script src="js/utils/toast.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/theme.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/notification.js"></script>

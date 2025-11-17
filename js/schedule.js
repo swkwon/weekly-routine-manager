@@ -2,15 +2,7 @@
 class ScheduleManager {
     constructor() {
         this.currentDay = 'monday';
-        this.dayNames = {
-            'monday': '월요일',
-            'tuesday': '화요일',
-            'wednesday': '수요일',
-            'thursday': '목요일',
-            'friday': '금요일',
-            'saturday': '토요일',
-            'sunday': '일요일'
-        };
+        // dayNames는 i18n.t()로 동적으로 가져옴
         
         this.init();
     }
@@ -132,7 +124,7 @@ class ScheduleManager {
         // 제목 업데이트
         const dayTitle = document.getElementById('currentDayTitle');
         if (dayTitle) {
-            dayTitle.textContent = `${this.dayNames[day]} 스케줄`;
+            dayTitle.textContent = `${i18n.t(`daysFull.${day}`)} ${i18n.t('scheduleTitle')}`;
         }
 
         // 스케줄 렌더링
@@ -219,10 +211,10 @@ class ScheduleManager {
                 </div>
             </div>
             <div class="schedule-actions">
-                <button class="btn btn-primary btn-icon" title="수정">
+                <button class="btn btn-primary btn-icon" title="${i18n.t('buttons.edit')}">
                     ✏️
                 </button>
-                <button class="btn btn-danger btn-icon" title="삭제">
+                <button class="btn btn-danger btn-icon" title="${i18n.t('buttons.delete')}">
                     🗑️
                 </button>
             </div>
@@ -265,7 +257,7 @@ class ScheduleManager {
         const form = document.getElementById('scheduleForm');
         
         // 모달 제목 설정
-        title.textContent = schedule ? '스케줄 수정' : '스케줄 추가';
+        title.textContent = schedule ? i18n.t('modal.editTitle') : i18n.t('modal.addTitle');
         
         // 폼 초기화 또는 데이터 채우기
         if (schedule) {
@@ -321,12 +313,12 @@ class ScheduleManager {
             .map(cb => cb.value);
 
         if (!time || !title) {
-            this.showToast('시간과 활동명을 입력해주세요.', 'error');
+            this.showToast(i18n.t('toast.fillRequired'), 'error');
             return;
         }
 
         if (selectedDays.length === 0) {
-            this.showToast('최소 1개 이상의 요일을 선택해주세요.', 'error');
+            this.showToast(i18n.t('toast.selectDays'), 'error');
             return;
         }
 
@@ -346,8 +338,8 @@ class ScheduleManager {
             
             if (updatedCount > 0) {
                 success = true;
-                const dayText = updatedCount === 1 ? '1개 요일' : `${updatedCount}개 요일`;
-                this.showToast(`${dayText}의 스케줄이 수정되었습니다.`, 'success');
+                const dayText = updatedCount + i18n.t('toast.dayCount');
+                this.showToast(dayText + i18n.t('toast.scheduleUpdated'), 'success');
                 
                 // 알림 업데이트 - 모든 요일에 대해
                 const allData = storage.getData();
@@ -380,8 +372,8 @@ class ScheduleManager {
             
             if (addedCount > 0) {
                 success = true;
-                const dayCount = addedCount === 1 ? '1개 요일' : `${addedCount}개 요일`;
-                this.showToast(`${dayCount}에 스케줄이 추가되었습니다.`, 'success');
+                const dayCount = addedCount + i18n.t('toast.dayCount');
+                this.showToast(i18n.t('toast.scheduleAdded') + dayCount, 'success');
             }
         }
 
@@ -389,7 +381,7 @@ class ScheduleManager {
             this.closeModal();
             this.renderSchedules();
         } else {
-            this.showToast('저장 중 오류가 발생했습니다.', 'error');
+            this.showToast(i18n.t('toast.saveError'), 'error');
         }
     }
 
@@ -403,10 +395,10 @@ class ScheduleManager {
 
     // 스케줄 삭제
     deleteSchedule(scheduleId) {
-        if (confirm('이 스케줄을 삭제하시겠습니까?')) {
+        if (confirm(i18n.t('toast.deleteConfirm'))) {
             const success = storage.deleteSchedule(this.currentDay, scheduleId);
             if (success) {
-                this.showToast('스케줄이 삭제되었습니다.', 'success');
+                this.showToast(i18n.t('toast.scheduleDeleted'), 'success');
                 this.renderSchedules();
                 
                 // 알림 취소
@@ -442,15 +434,15 @@ class ScheduleManager {
     }
 }
 
-// 전역 schedule 매니저 인스턴스 (DOMContentLoaded 후 초기화)
-let scheduleManager = null;
-
 // DOM이 로드된 후 초기화
+let scheduleManager;
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         scheduleManager = new ScheduleManager();
+        window.scheduleManager = scheduleManager;
     });
 } else {
     // 이미 로드된 경우
     scheduleManager = new ScheduleManager();
+    window.scheduleManager = scheduleManager;
 }

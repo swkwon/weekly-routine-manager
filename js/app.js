@@ -72,6 +72,15 @@ class App {
 
     // 전역 이벤트 바인딩
     bindGlobalEvents() {
+        // 언어 선택 이벤트
+        const languageSelect = document.getElementById('languageSelect');
+        if (languageSelect && window.i18n) {
+            languageSelect.value = i18n.getCurrentLanguage();
+            languageSelect.addEventListener('change', (e) => {
+                i18n.setLanguage(e.target.value);
+            });
+        }
+
         // 윈도우 포커스 이벤트
         window.addEventListener('focus', () => {
             this.onAppFocus();
