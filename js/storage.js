@@ -151,6 +151,30 @@ class StorageManager {
         return this.setData(data);
     }
 
+    // 활동명 기준으로 모든 요일의 동일 스케줄 일괄 수정
+    updateScheduleByTitle(originalTitle, updates) {
+        const data = this.getData();
+        if (!data) return false;
+
+        let updatedCount = 0;
+        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+        days.forEach(day => {
+            data.schedules[day].forEach(schedule => {
+                if (schedule.title === originalTitle) {
+                    Object.assign(schedule, updates, {
+                        updatedAt: new Date().toISOString()
+                    });
+                    updatedCount++;
+                }
+            });
+            // 시간순으로 정렬
+            data.schedules[day].sort((a, b) => a.time.localeCompare(b.time));
+        });
+
+        return updatedCount > 0 ? this.setData(data) && updatedCount : 0;
+    }
+
     // 스케줄 삭제
     deleteSchedule(day, scheduleId) {
         const data = this.getData();

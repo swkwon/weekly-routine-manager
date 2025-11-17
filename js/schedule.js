@@ -20,7 +20,6 @@ class ScheduleManager {
         this.bindEvents();
         this.loadCurrentDay();
         this.renderSchedules();
-        this.updateStats();
         
         // 기존 스케줄의 알림 재등록
         this.rescheduleAllNotifications();
@@ -87,6 +86,13 @@ class ScheduleManager {
             this.saveSchedule();
         });
 
+        // 모두 체크 버튼
+        document.getElementById('selectAllDays').addEventListener('click', () => {
+            const checkboxes = document.querySelectorAll('.day-checkbox');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(cb => cb.checked = !allChecked);
+        });
+
         // 스케줄 리스트 이벤트 (이벤트 위임)
         document.getElementById('scheduleList').addEventListener('click', (e) => {
             const scheduleItem = e.target.closest('.schedule-item');
@@ -94,9 +100,7 @@ class ScheduleManager {
 
             const scheduleId = scheduleItem.dataset.scheduleId;
             
-            if (e.target.closest('.btn-success')) {
-                this.toggleScheduleCompletion(scheduleId);
-            } else if (e.target.closest('.btn-primary')) {
+            if (e.target.closest('.btn-primary')) {
                 this.editSchedule(scheduleId);
             } else if (e.target.closest('.btn-danger')) {
                 this.deleteSchedule(scheduleId);
@@ -203,7 +207,7 @@ class ScheduleManager {
     // 스케줄 아이템 생성
     createScheduleItem(schedule) {
         const div = document.createElement('div');
-        div.className = `schedule-item ${schedule.completed ? 'completed' : ''}`;
+        div.className = 'schedule-item';
         div.dataset.scheduleId = schedule.id;
         
         div.innerHTML = `
@@ -215,9 +219,6 @@ class ScheduleManager {
                 </div>
             </div>
             <div class="schedule-actions">
-                <button class="btn btn-success btn-icon" title="${schedule.completed ? '완료 취소' : '완료'}">
-                    ${schedule.completed ? '↩️' : '✅'}
-                </button>
                 <button class="btn btn-primary btn-icon" title="수정">
                     ✏️
                 </button>
@@ -232,13 +233,6 @@ class ScheduleManager {
     
     // 기존 스케줄 아이템 업데이트
     updateScheduleItem(item, schedule) {
-        // 완료 상태 업데이트
-        if (schedule.completed) {
-            item.classList.add('completed');
-        } else {
-            item.classList.remove('completed');
-        }
-        
         // 시간, 제목, 설명 업데이트
         const timeEl = item.querySelector('.schedule-time');
         const titleEl = item.querySelector('.schedule-title');
@@ -260,13 +254,6 @@ class ScheduleManager {
         } else if (descEl) {
             descEl.remove();
         }
-        
-        // 완료 버튼 업데이트
-        const successBtn = item.querySelector('.btn-success');
-        if (successBtn) {
-            successBtn.textContent = schedule.completed ? '↩️' : '✅';
-            successBtn.title = schedule.completed ? '완료 취소' : '완료';
-        }
     }
 
     // 스케줄 모달 열기
@@ -286,12 +273,28 @@ class ScheduleManager {
             document.getElementById('scheduleTitle').value = schedule.title;
             document.getElementById('scheduleDescription').value = schedule.description || '';
             document.getElementById('enableNotification').checked = schedule.notificationEnabled;
+            
+            // 수정 모드에서는 동일한 활동명을 가진 모든 요일 체크
+            const allData = storage.getData();
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            const daysWithSameTitle = days.filter(day => 
+                allData.schedules[day].some(s => s.title === schedule.title)
+            );
+            
+            document.querySelectorAll('.day-checkbox').forEach(cb => {
+                cb.checked = daysWithSameTitle.includes(cb.value);
+            });
         } else {
             form.reset();
             // 현재 시간을 기본값으로 설정
             const now = new Date();
             const currentTime = now.toTimeString().slice(0, 5);
             document.getElementById('scheduleTime').value = currentTime;
+            
+            // 새 스케줄은 현재 요일만 체크
+            document.querySelectorAll('.day-checkbox').forEach(cb => {
+                cb.checked = cb.value === this.currentDay;
+            });
         }
         
         // 모달 표시
@@ -313,8 +316,17 @@ class ScheduleManager {
         const description = document.getElementById('scheduleDescription').value.trim();
         const notificationEnabled = document.getElementById('enableNotification').checked;
 
+        // 선택된 요일 가져오기
+        const selectedDays = Array.from(document.querySelectorAll('.day-checkbox:checked'))
+            .map(cb => cb.value);
+
         if (!time || !title) {
             this.showToast('시간과 활동명을 입력해주세요.', 'error');
+            return;
+        }
+
+        if (selectedDays.length === 0) {
+            this.showToast('최소 1개 이상의 요일을 선택해주세요.', 'error');
             return;
         }
 
@@ -328,37 +340,54 @@ class ScheduleManager {
         let success = false;
         
         if (this.editingSchedule) {
-            // 수정
-            success = storage.updateSchedule(this.currentDay, this.editingSchedule.id, scheduleData);
-            if (success) {
-                this.showToast('스케줄이 수정되었습니다.', 'success');
-                // 알림 업데이트
-                if (notificationEnabled) {
-                    notificationManager.scheduleNotification(this.currentDay, {
-                        ...this.editingSchedule,
-                        ...scheduleData
+            // 수정 - 활동명 기준으로 모든 요일의 동일 스케줄 일괄 수정
+            const originalTitle = this.editingSchedule.title;
+            const updatedCount = storage.updateScheduleByTitle(originalTitle, scheduleData);
+            
+            if (updatedCount > 0) {
+                success = true;
+                const dayText = updatedCount === 1 ? '1개 요일' : `${updatedCount}개 요일`;
+                this.showToast(`${dayText}의 스케줄이 수정되었습니다.`, 'success');
+                
+                // 알림 업데이트 - 모든 요일에 대해
+                const allData = storage.getData();
+                const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                
+                days.forEach(day => {
+                    const schedules = allData.schedules[day].filter(s => s.title === scheduleData.title);
+                    schedules.forEach(schedule => {
+                        if (notificationEnabled) {
+                            notificationManager.scheduleNotification(day, schedule);
+                        } else {
+                            notificationManager.cancelNotification(schedule.id);
+                        }
                     });
-                } else {
-                    notificationManager.cancelNotification(this.editingSchedule.id);
-                }
+                });
             }
         } else {
-            // 추가
-            const newSchedule = storage.addSchedule(this.currentDay, scheduleData);
-            if (newSchedule) {
-                success = true;
-                this.showToast('스케줄이 추가되었습니다.', 'success');
-                // 알림 스케줄링
-                if (notificationEnabled) {
-                    notificationManager.scheduleNotification(this.currentDay, newSchedule);
+            // 추가 - 선택된 모든 요일에 스케줄 추가
+            let addedCount = 0;
+            selectedDays.forEach(day => {
+                const newSchedule = storage.addSchedule(day, scheduleData);
+                if (newSchedule) {
+                    addedCount++;
+                    // 알림 설정
+                    if (notificationEnabled) {
+                        notificationManager.scheduleNotification(day, newSchedule);
+                    }
                 }
+            });
+            
+            if (addedCount > 0) {
+                success = true;
+                const dayCount = addedCount === 1 ? '1개 요일' : `${addedCount}개 요일`;
+                this.showToast(`${dayCount}에 스케줄이 추가되었습니다.`, 'success');
             }
         }
 
         if (success) {
             this.closeModal();
             this.renderSchedules();
-            this.updateStats();
         } else {
             this.showToast('저장 중 오류가 발생했습니다.', 'error');
         }
@@ -379,58 +408,11 @@ class ScheduleManager {
             if (success) {
                 this.showToast('스케줄이 삭제되었습니다.', 'success');
                 this.renderSchedules();
-                this.updateStats();
-                // 알림도 취소
+                
+                // 알림 취소
                 notificationManager.cancelNotification(scheduleId);
-            } else {
-                this.showToast('삭제 중 오류가 발생했습니다.', 'error');
             }
         }
-    }
-
-    // 스케줄 완료 토글
-    toggleScheduleCompletion(scheduleId) {
-        const success = storage.toggleScheduleCompletion(this.currentDay, scheduleId);
-        if (success) {
-            this.renderSchedules();
-            this.updateStats();
-            
-            const schedule = storage.getSchedules(this.currentDay).find(s => s.id === scheduleId);
-            const message = schedule?.completed ? '완료 표시했습니다!' : '완료를 취소했습니다.';
-            this.showToast(message, 'success');
-        }
-    }
-
-    // 통계 업데이트
-    updateStats() {
-        storage.updateWeeklyStats();
-        const stats = storage.getStats();
-        const statsGrid = document.getElementById('statsGrid');
-
-        const allSchedules = Object.values(storage.getData().schedules).flat();
-        const totalSchedules = allSchedules.length;
-        const completedSchedules = allSchedules.filter(s => s.completed).length;
-        const todaySchedules = storage.getTodaySchedules();
-        const todayCompleted = todaySchedules.filter(s => s.completed).length;
-        
-        statsGrid.innerHTML = `
-            <div class="stat-item">
-                <div class="stat-value">${totalSchedules}</div>
-                <div class="stat-label">전체 스케줄</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">${completedSchedules}</div>
-                <div class="stat-label">완료된 스케줄</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">${todaySchedules.length}</div>
-                <div class="stat-label">오늘 스케줄</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">${totalSchedules > 0 ? Math.round((completedSchedules / totalSchedules) * 100) : 0}%</div>
-                <div class="stat-label">전체 달성률</div>
-            </div>
-        `;
     }
 
     // 시간 포맷팅
