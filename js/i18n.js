@@ -498,9 +498,10 @@ class I18nManager {
         const enableNotifInput = document.getElementById('enableNotification');
         if (enableNotifInput) {
             const label = enableNotifInput.closest('label');
-            const span = label?.querySelector('span:not(.checkmark)');
-            if (span) {
-                span.textContent = this.t('modal.enableNotification');
+            const spans = label?.querySelectorAll('span');
+            if (spans && spans.length >= 2) {
+                // 두 번째 span이 텍스트 (checkmark 다음)
+                spans[1].textContent = this.t('modal.enableNotification');
             }
         }
 
