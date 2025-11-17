@@ -10,6 +10,7 @@ const STATIC_FILES = [
     './css/style.css',
     './css/mobile.css',
     './js/utils/toast.js',
+    './js/theme.js',
     './js/app.js',
     './js/storage.js',
     './js/schedule.js',

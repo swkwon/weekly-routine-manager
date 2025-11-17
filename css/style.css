@@ -6,7 +6,7 @@
 }
 
 :root {
-    /* 색상 팔레트 */
+    /* 라이트 모드 색상 */
     --primary-color: #4F46E5;
     --primary-light: #6366F1;
     --primary-dark: #3730A3;
@@ -37,6 +37,25 @@
     --border-radius-md: 0.5rem;
     --border-radius-lg: 0.75rem;
     --border-radius-xl: 1rem;
+}
+
+/* 다크 모드 */
+[data-theme="dark"] {
+    --primary-color: #6366F1;
+    --primary-light: #818CF8;
+    --primary-dark: #4F46E5;
+    --secondary-color: #34D399;
+    --background-color: #111827;
+    --surface-color: #1F2937;
+    --text-primary: #F9FAFB;
+    --text-secondary: #D1D5DB;
+    --border-color: #374151;
+    --danger-color: #F87171;
+    --warning-color: #FBBF24;
+    
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
 }
 
 body {
@@ -77,6 +96,35 @@ body {
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-size: 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.theme-toggle:hover {
+    background: var(--background-color);
+    transform: translateY(-1px);
+}
+
+.theme-icon {
+    transition: transform 0.3s ease;
 }
 
 .notification-toggle {

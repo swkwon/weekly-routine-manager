@@ -31,10 +31,15 @@
                 📅
                 주간 루틴 매니저
             </h1>
-            <button class="notification-toggle" id="notificationToggle">
-                🔔
-                <span>알림 설정</span>
-            </button>
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" title="테마 변경">
+                    <span class="theme-icon">🌙</span>
+                </button>
+                <button class="notification-toggle" id="notificationToggle">
+                    🔔
+                    <span>알림 설정</span>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -139,6 +144,7 @@
 
     <!-- 자바스크립트 파일들 -->
     <script src="js/utils/toast.js"></script>
+    <script src="js/theme.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/notification.js"></script>
     <script src="js/schedule.js"></script>
